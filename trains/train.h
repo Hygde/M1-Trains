@@ -6,7 +6,7 @@
 
    \author Samuel DE VALS, Paul VIALART 
 
-   \author Email  : 
+   \author Email  : samuel.devals@outook.fr, paulvialart@gmail.fr
    \date 10/2017
 */
 
@@ -33,6 +33,32 @@ typedef struct strain{
 	char*trajet;	/**<path that the train will follow*/
 }strain;
 
+  /**
+  \fn   int Initialisation (int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains);
+  \brief Init nTrains trains
+
+  \param[in] int displaying debug messages
+  \param[in] ttrains trains threads
+  \param[in] nTrains Number of trains
+  \param[in] data_trains strain structure
+
+  \param[out] result 0 or ERROR
+  
+  \par Exemple:
+	Initialisation(1,ttrains,3,data_trains);
+  */
 int Initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trains);
+
+
+  /**
+  \fn   void*Move (void*trajet);
+  \brief Thread function used to make the trains move
+
+  \param[in] trajet The path followed by the train
+  
+  \par Exemple:
+	pthread_create(&ttrains[i],&attr,Move,(void*)(data_trains+i));
+  */
 void*Move(void*trajet);
+
 
