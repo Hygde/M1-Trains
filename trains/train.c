@@ -33,22 +33,22 @@ int Initialisation(int verbose, pthread_t* ttrains, int Ntrain, strain* data_tra
 
 void* Move(void*data_train){
 
-	//initialisation
+	// initialisation
 	int N = strlen(((strain*)data_train)->trajet);
-	printf("\nTrain %d a pour trajet: %s de %d etapes\n",((strain*)data_train)->number,((strain*)data_train)->trajet,N);
+	printf("Train %d a pour trajet: %s de %d etapes\n\n",((strain*)data_train)->number,((strain*)data_train)->trajet,N);
 	// looping throug the path
 	while(1){
 	/**
 		\todo 
-		Fix the display bug (occasionally there is only one letter which appears)
+		synchronize threads : 	1. 0 to N train(s) on the same path but only one direction a time
+					2. A train can't overtake an other
 	*/
-		int i;
-		for(i = 0; i < N-1; i++){
-			printf("Le train %d s`engage sur %c %c\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[i+1]);
-			sleep((rand()%2)+1);
+		for(int i = 0; i < N; i++){
+			if(((strain*)data_train)->trajet[i] != ((strain*)data_train)->trajet[(i+1)%N]){
+				printf("Le train %d s`engage sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
+				sleep((rand()%2)+1);
+			}
 		}
-		printf("Le train %d s`engage sur %c %c\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i+1],((strain*)data_train)->trajet[0]);
-		sleep((rand()%2)+1);
 	}
 	return(NULL);
 }
