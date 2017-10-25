@@ -1,9 +1,13 @@
 FLAG=-Wall
 LIBRARIES=-lpthread
-IN=main.c trains/train.c
 OUT=-o projet
 
-all:
-	gcc $(FLAG) $(IN) $(LIBRARIES) $(OUT)
+main.o: main.c trains/train.h
+	gcc -c main.c -o main.o
 
+train.o: trains/train.c
+	gcc -c trains/train.c -o train.o
 
+all: main.o train.o
+	gcc $(FLAG) main.o train.o $(LIBRARIES) $(OUT)
+	rm *.o

@@ -1,3 +1,6 @@
+#ifndef __TRAIN_H__ // permet d'eviter une double inclusion
+#define __TRAIN_H__
+
 /**
   \file trains.h
   \brief Train structure library
@@ -10,7 +13,6 @@
    \date 10/2017
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -21,6 +23,10 @@
 #include <unistd.h>
 
 #define ERROR -1
+
+#ifdef __cplusplus// signal au compilateur C++  le début de la section à traiter comme du C
+extern "C" {
+#endif
 
   /** 
    \typedef strain
@@ -61,4 +67,8 @@ int Initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trai
   */
 void*Move(void*trajet);
 
+#ifdef __cplusplus// signal au compilateur C++  la fin de la section à traiter comme du C
+}
+#endif
 
+#endif
