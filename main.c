@@ -43,3 +43,4 @@ int main(int argc, char*argv[]){
 	Initialisation(1,ttrains,3,data_trains);
 	pthread_exit(0);
 }
+
