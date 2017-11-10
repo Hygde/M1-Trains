@@ -16,17 +16,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <semaphore.h>
 #include <errno.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <signal.h>
+#include <time.h>
 
 #define ERROR -1
+
+#define NB_LINES 5
+
+//index for matrix
+#define A 0
+#define B 1
+#define C 2
+#define D 3
+#define E 4
 
 #ifdef __cplusplus// signal au compilateur C++  le début de la section à traiter comme du C
 extern "C" {
 #endif
+
+pthread_mutex_t mutex_access_matrix;
+
+//representation of lines
+typedef struct lines{
+	int nombre_train;
+	time_t timestamp;
+	int travel_time;
+
+	pthread_mutex_t line;
+	pthread_cond_t cond_free;
+}lines;
+
+//Matrix of the ligne
+lines matrix_lines[NB_LINES][NB_LINES];
+
 
   /** 
    \typedef strain
@@ -36,6 +62,7 @@ extern "C" {
 
 typedef struct strain{
 	int number;	/**<train number*/
+	int Ntrain; /**<Total count of train*/
 	char*trajet;	/**<path that the train will follow*/
 }strain;
 
@@ -54,6 +81,16 @@ typedef struct strain{
 	Initialisation(1,ttrains,3,data_trains);
   */
 int Initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trains);
+
+int Initlines();//initialize
+
+int GetLigne(int i, int j);//lock a ligne
+
+int SignalUnusedLine(int i, int j);//signal to others threads they can use it
+
+void FreeLines(int sig);//free memory
+
+int CvtCharToI(char carac);//convert ascii character to int
 
 
   /**
