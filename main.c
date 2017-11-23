@@ -32,6 +32,14 @@ void InitStructTrain(strain *trains,char trajet[3][6],int N){
 }
 
 int main(int argc, char*argv[]){
+	if(argc < 2){
+		printf("Error, you should give a parameter in [0;3] :\n");
+		printf("0- mutex\n");
+		printf("1- semaphore\n");
+		printf("2- rwlock\n");
+		printf("3- message queue\n");
+		exit(ERROR);
+	}
 
 	printf("\tProjet PTR\n");
 	// delcaring variables

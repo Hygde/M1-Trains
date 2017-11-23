@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <errno.h>
 #include <string.h>
 #include <time.h>
@@ -38,16 +39,17 @@
 extern "C" {
 #endif
 
-pthread_mutex_t mutex_access_matrix;
+pthread_mutex_t fifo;
+pthread_barrier_t barrier;
 
 //representation of lines
 typedef struct lines{
 	int nombre_train;
 	time_t timestamp;
-	int travel_time;
+	long int travel_time;
 
-	pthread_mutex_t line;
-	pthread_cond_t cond_free;
+	pthread_mutex_t mutex_line;
+	sem_t sem_line;
 }lines;
 
 //Matrix of the ligne
@@ -84,7 +86,9 @@ int Initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trai
 
 int Initlines();//initialize
 
-int GetLigne(int i, int j);//lock a ligne
+int travelTime(int x, int y);//calcul the time of travels, trains can't overtakes an other
+
+int GetLine(int i, int j);//lock a ligne
 
 int SignalUnusedLine(int i, int j);//signal to others threads they can use it
 
