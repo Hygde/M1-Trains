@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/ProGenWCMake.dir/main.c.o CMakeFiles/ProGenWCMake.dir/trains/train.c.o  -o ProGenWCMake -pthread 

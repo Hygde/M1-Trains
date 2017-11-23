@@ -23,24 +23,44 @@
 
 #define NB_TRAINS 3
 
-void InitStructTrain(strain *trains,char trajet[3][6],int N){
-	for(int i = 0; i < N; i++){
-		(trains+i)->number = i;
-		(trains+i)->Ntrain = NB_TRAINS;
-		(trains+i)->trajet = trajet[i];
+int CheckArgv(int argc, char*argv[]){
+	int result = ERROR;
+	if(argc == 2){
+		result = atoi(argv[argc-1]);
+		if((result < 0) || (result > 3)){
+			result = ERROR;
+			printf("Error, you should give a parameter in [0;3] :\n");
+			printf("0- mutex\n");
+			printf("1- semaphore\n");
+			printf("2- rwlock\n");
+			printf("3- message queue\n");
+		}
 	}
-}
-
-int main(int argc, char*argv[]){
-	if(argc < 2){
+	else{
 		printf("Error, you should give a parameter in [0;3] :\n");
 		printf("0- mutex\n");
 		printf("1- semaphore\n");
 		printf("2- rwlock\n");
 		printf("3- message queue\n");
-		exit(ERROR);
 	}
+	
+	return result;
+}
 
+void InitStructTrain(strain *trains,char trajet[3][6], int sync,int N){
+	for(int i = 0; i < N; i++){
+		(trains+i)->number = i;
+		(trains+i)->Ntrain = NB_TRAINS;
+		(trains+i)->trajet = trajet[i];
+		(trains+i)->sync = sync;
+	}
+}
+
+int main(int argc, char*argv[]){
+
+	int sync = CheckArgv(argc, argv);
+	if(sync == ERROR)exit(ERROR);
+	
 	printf("\tProjet PTR\n");
 	// delcaring variables
 	pthread_t ttrains[NB_TRAINS];
@@ -50,7 +70,7 @@ int main(int argc, char*argv[]){
 	// DEBUG("%s %s %d\n", __FILE__, __func__, __LINE__);
 	
 	// initialisation
-	InitStructTrain(data_trains,trajet,3);
+	InitStructTrain(data_trains,trajet, sync,3);
 	Initlines();
 	Initialisation(1,ttrains,3,data_trains);
 

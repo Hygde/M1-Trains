@@ -39,7 +39,8 @@
 extern "C" {
 #endif
 
-pthread_mutex_t fifo;
+pthread_mutex_t mutex_fifo;
+sem_t sem_fifo;
 pthread_barrier_t barrier;
 
 //representation of lines
@@ -64,8 +65,9 @@ lines matrix_lines[NB_LINES][NB_LINES];
 
 typedef struct strain{
 	int number;	/**<train number*/
-	int Ntrain; /**<Total count of train*/
+	int Ntrain; 	/**<Total count of train*/
 	char*trajet;	/**<path that the train will follow*/
+	int sync;	/**<variable use to select the good sync system*/
 }strain;
 
   /**
@@ -88,9 +90,13 @@ int Initlines();//initialize
 
 int travelTime(int x, int y);//calcul the time of travels, trains can't overtakes an other
 
-int GetLine(int i, int j);//lock a ligne
+void GetLine(int sync, int x, int y);//call the good sync
+void GetLineMutex(int i, int j);//lock a line with mutex
+void GetLineSemaphore(int i, int j);//lock a line with semaphore
 
-int SignalUnusedLine(int i, int j);//signal to others threads they can use it
+void SignalUnusedLine(int sync, int x, int y);//call the good sync
+void SignalUnusedLineMutex(int i, int j);//signal to others threads they can use it with mutex
+void SignalUnusedLineSemaphore(int i, int j);//signal to others threads they can use it with semaphore
 
 void FreeLines(int sig);//free memory
 
