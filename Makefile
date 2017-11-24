@@ -123,6 +123,33 @@ ProGenWCMake/fast:
 	$(MAKE) -f CMakeFiles/ProGenWCMake.dir/build.make CMakeFiles/ProGenWCMake.dir/build
 .PHONY : ProGenWCMake/fast
 
+file/file.o: file/file.c.o
+
+.PHONY : file/file.o
+
+# target to build an object file
+file/file.c.o:
+	$(MAKE) -f CMakeFiles/ProGenWCMake.dir/build.make CMakeFiles/ProGenWCMake.dir/file/file.c.o
+.PHONY : file/file.c.o
+
+file/file.i: file/file.c.i
+
+.PHONY : file/file.i
+
+# target to preprocess a source file
+file/file.c.i:
+	$(MAKE) -f CMakeFiles/ProGenWCMake.dir/build.make CMakeFiles/ProGenWCMake.dir/file/file.c.i
+.PHONY : file/file.c.i
+
+file/file.s: file/file.c.s
+
+.PHONY : file/file.s
+
+# target to generate assembly for a file
+file/file.c.s:
+	$(MAKE) -f CMakeFiles/ProGenWCMake.dir/build.make CMakeFiles/ProGenWCMake.dir/file/file.c.s
+.PHONY : file/file.c.s
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -186,6 +213,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... ProGenWCMake"
+	@echo "... file/file.o"
+	@echo "... file/file.i"
+	@echo "... file/file.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

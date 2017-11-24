@@ -1,10 +1,11 @@
 #include "train.h"
 
+// DEBUG("%s %s %d\n", __FILE__, __func__, __LINE__);
+
 
 int Initialisation(int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains){
 	int result = 0;
 	// initialisation	
-	srand(time(NULL));
 	if(verbose)printf("Initialisation des threads `trains` :\n");
 	pthread_attr_t attr;
 	// creating thread attributes
@@ -14,7 +15,7 @@ int Initialisation(int verbose, pthread_t* ttrains, int Ntrain, strain* data_tra
 		exit(ERROR);
 	}
 	// defining thread attr
-	if(pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED) != 0){
+	if(pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE) != 0){
 		perror("pthread_attr_setdetachstate()");
 		result = ERROR;
 		exit(ERROR);
@@ -55,13 +56,18 @@ int Initlines(){
 }
 
 //time to travel. Trains aren't able to overtake an other
-int travelTime(int i, int j){
+int travelTime(strain* train, int i, int j){
 	int result = (rand()%3+1);//travel time E [1;3]
 	if(matrix_lines[i][j].travel_time - time(0) > 0){//an other trains is on the line
 		result += matrix_lines[i][j].travel_time - time(0);
 		if(result > 3) result = 3;
 	}
 	matrix_lines[i][j].travel_time = time(0)+result;//updating flag
+	
+	train->Ntrajet++;
+	train->avg_travel_time += (double) result;
+	train->avg_travel_time /= 2.0;
+	
 	return result;
 }
 
@@ -103,7 +109,7 @@ void GetLineRwlock(int i, int j){
 	matrix_lines[i][j].nombre_train++;
 	if(matrix_lines[i][j].nombre_train == 1)pthread_rwlock_wrlock(&matrix_lines[j][i].rwlock_line);
 	
-	//pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented	
+	//pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented with message "Operation not allowed" -> only 1 thread	
 	pthread_rwlock_unlock(&rwlock_fifo);	
 }
 
@@ -136,7 +142,7 @@ void SignalUnusedLineSemaphore(int i, int j){
 
 //unlock line when travel complete
 void SignalUnusedLineRwlock(int i, int j){
-	//pthread_rwlock_wrlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented
+	//pthread_rwlock_wrlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented with message "Operation not allowed" -> only 1 thread
 	matrix_lines[i][j].nombre_train--;
 	if(matrix_lines[i][j].nombre_train == 0)pthread_rwlock_unlock(&matrix_lines[j][i].rwlock_line);
 	pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line);
@@ -204,7 +210,7 @@ void* Move(void*data_train){
 				x = CvtCharToI(((strain*)data_train)->trajet[i]);
 				y = CvtCharToI(((strain*)data_train)->trajet[(i+1)%N]);
 				GetLine(((strain*)data_train)->sync,x,y);
-				sleep(travelTime(x,y));
+				sleep(travelTime((strain*)data_train,x,y));
 				SignalUnusedLine(((strain*)data_train)->sync,x,y);
 				printf("Le train %d a atteint sa destination sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
 			}

@@ -13,6 +13,7 @@ add_executable(
 	ProGenWCMake
 	main.c
 	trains/train.c
+	file/file.c
 )
 
 #ajout de la bibliothèque pthread à l'executable

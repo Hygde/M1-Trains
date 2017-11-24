@@ -25,10 +25,8 @@
 #include <time.h>
 
 #define ERROR -1
-
 #define NB_LINES 5
-
-#define DEBUG if(1) printf
+#define RUNTIME  30//20*60 //20 minutes per execution
 
 //index for matrix
 #define A 0
@@ -71,6 +69,8 @@ typedef struct strain{
 	int number;	/**<train number*/
 	int Ntrain; 	/**<Total count of train*/
 	char*trajet;	/**<path that the train will follow*/
+	int Ntrajet;
+	double avg_travel_time;
 	int sync;	/**<variable use to select the good sync system*/
 }strain;
 
@@ -92,7 +92,7 @@ int Initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trai
 
 int Initlines();//initialize
 
-int travelTime(int x, int y);//calcul the time of travels, trains can't overtakes an other
+int travelTime(strain* train, int x, int y);//calcul the time of travels, trains can't overtakes an other
 
 void GetLine(int sync, int x, int y);//call the good sync
 void GetLineMutex(int i, int j);//lock a line with mutex

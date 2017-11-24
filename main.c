@@ -14,6 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "file/file.h"
 #include "trains/train.h"
 
 /** \def DEBUG
@@ -23,57 +24,85 @@
 
 #define NB_TRAINS 3
 
-int CheckArgv(int argc, char*argv[]){
-	int result = ERROR;
-	if(argc == 2){
-		result = atoi(argv[argc-1]);
-		if((result < 0) || (result > 3)){
+//display
+void printSeedChoiceError(){
+	printf("Error, seed value must be in [1;1000]\n");
+}
+
+//display
+void printSyncChoiceError(){
+	printf("Error, you should give a parameter in [0;3] :\n");
+	printf("0- mutex\n");
+	printf("1- semaphore\n");
+	printf("2- rwlock\n");
+	printf("3- message queue\n");
+}
+
+//checking arguments
+int CheckArgv(int argc, char*argv[], int*seed,int*sync){
+	int result = 0;
+	if(argc == 3){
+		*seed = atoi(argv[1]);
+		if((*seed < 1) || (*seed > 1000)){
 			result = ERROR;
-			printf("Error, you should give a parameter in [0;3] :\n");
-			printf("0- mutex\n");
-			printf("1- semaphore\n");
-			printf("2- rwlock\n");
-			printf("3- message queue\n");
+			printSeedChoiceError();
+		}
+		*sync = atoi(argv[2]);
+		if((*sync < 0) || (*sync > 3)){
+			result = ERROR;
+			printSyncChoiceError();
 		}
 	}
 	else{
-		printf("Error, you should give a parameter in [0;3] :\n");
-		printf("0- mutex\n");
-		printf("1- semaphore\n");
-		printf("2- rwlock\n");
-		printf("3- message queue\n");
+		printSeedChoiceError();
+		printSyncChoiceError();
+		result = ERROR;
 	}
 	
 	return result;
 }
 
+//initialisation struct strain
 void InitStructTrain(strain *trains,char trajet[3][6], int sync,int N){
 	for(int i = 0; i < N; i++){
 		(trains+i)->number = i;
 		(trains+i)->Ntrain = NB_TRAINS;
 		(trains+i)->trajet = trajet[i];
+		(trains+i)->Ntrajet = 0;
+		(trains+i)->avg_travel_time = 0.0;
 		(trains+i)->sync = sync;
 	}
 }
 
 int main(int argc, char*argv[]){
+	int seed = ERROR, sync = ERROR;
 
-	int sync = CheckArgv(argc, argv);
-	if(sync == ERROR)exit(ERROR);
+	int res = CheckArgv(argc, argv, &seed, &sync);
+	if(res == ERROR)exit(ERROR);
 	
-	printf("\tProjet PTR\n");
-	// delcaring variables
-	pthread_t ttrains[NB_TRAINS];
+	writeSeparator();
+	writeParameter(seed, sync);
+	
+	pthread_t ttrains[NB_TRAINS];//declaration
 	strain data_trains[NB_TRAINS];
 	char trajet[3][6] = {{'A','B','C','B','A','\0'},{'A','B','D','B','A','\0'},{'A','B','D','C','E','\0'}};
-
-	// DEBUG("%s %s %d\n", __FILE__, __func__, __LINE__);
 	
 	// initialisation
+	srand(seed);
 	InitStructTrain(data_trains,trajet, sync,3);
 	Initlines();
 	Initialisation(1,ttrains,3,data_trains);
+	
+	sleep(RUNTIME);//attente
+	
+	for(int i =0; i < NB_TRAINS; i++){//end of prog
+		while(pthread_cancel(ttrains[i]) != 0);
+		pthread_join(ttrains[i],NULL);
+		writeResult(data_trains[i].number, data_trains[i].Ntrajet, data_trains[i].avg_travel_time);
+	}
+		
+	FreeLines(SIGINT);//free mem
 
-	pthread_exit(0);
+	return 0;
 }
 
