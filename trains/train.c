@@ -36,14 +36,19 @@ int Initlines(){
 	if(signal(SIGINT, FreeLines) == SIG_ERR) printf("\nImpossible d avoir le signal ctrl C");
 	pthread_mutex_init(&mutex_fifo, NULL);
 	sem_init(&sem_fifo,0,1);
+	pthread_rwlock_init(&rwlock_fifo,NULL);
 	pthread_barrier_init(&barrier,NULL, 1);
 	for(int i = 0; i < NB_LINES; i++){
 		for(int j = 0; j < NB_LINES; j++){
+			//do this job in all cases
 			matrix_lines[i][j].nombre_train = 0;
 			matrix_lines[i][j].timestamp = 0;
 			matrix_lines[i][j].travel_time = 0;
+			
+			//todo : add a selection of sync system, optimize memory use
 			pthread_mutex_init(&matrix_lines[i][j].mutex_line, NULL);
 			sem_init(&matrix_lines[i][j].sem_line,0,1);
+			pthread_rwlock_init(&matrix_lines[i][j].rwlock_line, NULL);
 		}
 	}
 	return 0;
@@ -65,7 +70,7 @@ void GetLine(int sync, int x, int y){
 	switch(sync){
 		case 0:GetLineMutex(x,y);break;
 		case 1:GetLineSemaphore(x,y);break;
-		case 2:break;
+		case 2:GetLineRwlock(x,y);break;
 		case 3:break;
 		default:break;
 	}
@@ -91,12 +96,23 @@ void GetLineSemaphore(int i, int j){
 	sem_post(&sem_fifo);
 }
 
+//lock a line using rwlock (writer)
+void GetLineRwlock(int i, int j){
+	pthread_rwlock_wrlock(&rwlock_fifo);
+	pthread_rwlock_wrlock(&matrix_lines[i][j].rwlock_line);
+	matrix_lines[i][j].nombre_train++;
+	if(matrix_lines[i][j].nombre_train == 1)pthread_rwlock_wrlock(&matrix_lines[j][i].rwlock_line);
+	
+	//pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented	
+	pthread_rwlock_unlock(&rwlock_fifo);	
+}
+
 //select the good sync system
 void SignalUnusedLine(int sync, int x, int y){
 	switch(sync){
 		case 0:SignalUnusedLineMutex(x,y);break;
 		case 1:SignalUnusedLineSemaphore(x,y);break;
-		case 2:break;
+		case 2:SignalUnusedLineRwlock(x,y);break;
 		case 3:break;
 		default:break;
 	}
@@ -118,6 +134,14 @@ void SignalUnusedLineSemaphore(int i, int j){
 	sem_post(&matrix_lines[i][j].sem_line);
 }
 
+//unlock line when travel complete
+void SignalUnusedLineRwlock(int i, int j){
+	//pthread_rwlock_wrlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented
+	matrix_lines[i][j].nombre_train--;
+	if(matrix_lines[i][j].nombre_train == 0)pthread_rwlock_unlock(&matrix_lines[j][i].rwlock_line);
+	pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line);
+}
+
 //Free memory when ^C
 void FreeLines(int sig){
 	if(sig == SIGINT){
@@ -127,8 +151,10 @@ void FreeLines(int sig){
 		pthread_barrier_destroy(&barrier);
 		for(int i = 0; i < NB_LINES; i++){
 			for(int j =0; j < NB_LINES; j++){
+				//todo : free only the memery use
 				pthread_mutex_destroy(&matrix_lines[i][j].mutex_line);
 				sem_destroy(&matrix_lines[i][j].sem_line);
+				pthread_rwlock_destroy(&matrix_lines[i][j].rwlock_line);
 			}
 		}
 		exit(EXIT_SUCCESS);//end the program
@@ -177,9 +203,9 @@ void* Move(void*data_train){
 				printf("Le train %d s`engage sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
 				x = CvtCharToI(((strain*)data_train)->trajet[i]);
 				y = CvtCharToI(((strain*)data_train)->trajet[(i+1)%N]);
-				GetLine(0,x,y);
+				GetLine(((strain*)data_train)->sync,x,y);
 				sleep(travelTime(x,y));
-				SignalUnusedLine(0,x,y);
+				SignalUnusedLine(((strain*)data_train)->sync,x,y);
 				printf("Le train %d a atteint sa destination sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
 			}
 		}

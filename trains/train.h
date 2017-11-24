@@ -28,6 +28,8 @@
 
 #define NB_LINES 5
 
+#define DEBUG if(1) printf
+
 //index for matrix
 #define A 0
 #define B 1
@@ -41,6 +43,7 @@ extern "C" {
 
 pthread_mutex_t mutex_fifo;
 sem_t sem_fifo;
+pthread_rwlock_t rwlock_fifo;
 pthread_barrier_t barrier;
 
 //representation of lines
@@ -51,6 +54,7 @@ typedef struct lines{
 
 	pthread_mutex_t mutex_line;
 	sem_t sem_line;
+	pthread_rwlock_t rwlock_line;
 }lines;
 
 //Matrix of the ligne
@@ -93,10 +97,12 @@ int travelTime(int x, int y);//calcul the time of travels, trains can't overtake
 void GetLine(int sync, int x, int y);//call the good sync
 void GetLineMutex(int i, int j);//lock a line with mutex
 void GetLineSemaphore(int i, int j);//lock a line with semaphore
+void GetLineRwlock(int i, int j);//lock a line with rwlock
 
 void SignalUnusedLine(int sync, int x, int y);//call the good sync
 void SignalUnusedLineMutex(int i, int j);//signal to others threads they can use it with mutex
 void SignalUnusedLineSemaphore(int i, int j);//signal to others threads they can use it with semaphore
+void SignalUnusedLineRwlock(int i, int j);//signal to others threads they can use it with rwlock
 
 void FreeLines(int sig);//free memory
 

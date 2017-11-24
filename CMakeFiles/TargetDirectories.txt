@@ -1,3 +1,0 @@
-/home/hygde/Documents/PTR/projet/Trains/CMakeFiles/rebuild_cache.dir
-/home/hygde/Documents/PTR/projet/Trains/CMakeFiles/ProGenWCMake.dir
-/home/hygde/Documents/PTR/projet/Trains/CMakeFiles/edit_cache.dir
