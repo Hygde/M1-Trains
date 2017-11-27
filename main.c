@@ -1,10 +1,19 @@
-/**
-   \file main.c
-   \brief Asynchronous C projet simulating a rail traffic 
-   \author Samuel DE VALS, Paul VIALART 
+/*!
+	\file main.c
+	\brief Asynchronous C projet simulating a rail traffic 
+	\author Samuel DE VALS, Paul VIALART 
 
-   \author Email  : samuel.devals@outook.fr, paulvialart@gmail.fr
-   \date 10/2017
+	\author Email  : samuel.devals@outook.fr, paulvialart@gmail.fr
+	\date 10/2017
+
+	\mainpage Project description
+	\section Trains
+	
+	\subsection (?)
+	
+	
+	\section Trainstations
+
 */
 
 /*
@@ -24,19 +33,17 @@
 #include "file/file.h"
 #include "trains/train.h"
 
-/** \def DEBUG
+/*! \def DEBUG
      Good practice : use this to debug the program 
 */
 #define DEBUG if (1) printf
 
 #define NB_TRAINS 3
 
-//display
 void printSeedChoiceError(){
 	printf("Error, seed value must be in [1;1000]\n");
 }
 
-//display
 void printSyncChoiceError(){
 	printf("Error, you should give a parameter in [0;3] :\n");
 	printf("0- mutex\n");
@@ -45,8 +52,13 @@ void printSyncChoiceError(){
 	printf("3- message queue\n");
 }
 
-//checking arguments
-int CheckArgv(int argc, char*argv[], int*seed,int*sync){
+
+/*! 
+	\brief	Check if all the correct params are passed when calling the executable	
+	\return 0 if everything wen fine ; ERROR if a param is wrong or missing	 
+
+*/
+int CheckArgv(int argc, char*argv[], int*seed, int*sync) {
 	int result = 0;
 	if(argc == 3) {
 		*seed = atoi(argv[1]);
@@ -69,8 +81,14 @@ int CheckArgv(int argc, char*argv[], int*seed,int*sync){
 	return result;
 }
 
-//initialisation struct strain
-void InitStructTrain(strain *trains,char trajet[3][6], int sync,int N){
+/*! 
+	\brief	Initialize N strain structures	
+	\param	*trains	An strain array of trains
+	\param	trajet	A char array containing the different journeys
+	\param	sync	A int corresponding to the selected synchronization mode : 0 = mutex, 1 = semaphore, 2 = rwlock, 3 = message queue
+	\param	N	int representing the number of structures the program will create
+*/
+void InitStructTrain(strain *trains, char trajet[3][6], int sync, int N) {
 	for(int i = 0; i < N; i++){
 		(trains+i)->number = i;
 		(trains+i)->Ntrain = NB_TRAINS;
@@ -81,7 +99,11 @@ void InitStructTrain(strain *trains,char trajet[3][6], int sync,int N){
 	}
 }
 
-int main(int argc, char*argv[]){
+
+/*! 
+	\brief	The entry point of our program
+*/
+int main(int argc, char*argv[]) {
 	// DECLERATION
 	int seed = ERROR, sync = ERROR;
 
@@ -97,7 +119,7 @@ int main(int argc, char*argv[]){
 	
 	// INITIALIZATION
 	srand(seed);
-	InitStructTrain(data_trains,trajet, sync,3);
+	InitStructTrain(data_trains, trajet, sync,3);
 	Initlines();
 	Initialisation(1,ttrains,3,data_trains);
 	

@@ -59,11 +59,11 @@ typedef struct lines{
 lines matrix_lines[NB_LINES][NB_LINES];
 
 
-  /** 
-   \typedef strain
+/** 
+  	\typedef strain
 
-   Structure used to build trains 
-  */
+   	Structure used to build trains 
+*/
 
 typedef struct strain{
 	int number;	/**<train number*/
@@ -74,21 +74,22 @@ typedef struct strain{
 	int sync;	/**<variable use to select the good sync system*/
 }strain;
 
-  /**
-  \fn   int Initialisation (int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains);
-  \brief Init nTrains trains
 
-  \param[in] int displaying debug messages
-  \param[in] ttrains trains threads
-  \param[in] nTrains Number of trains
-  \param[in] data_trains strain structure
+/*!
+  	\fn   int Initialisation (int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains);
+  	\brief Init nTrains trains
 
-  \param[out] result 0 or ERROR
+  	\param[in] int displaying debug messages
+  	\param[in] ttrains trains threads
+  	\param[in] nTrains Number of trains
+  	\param[in] data_trains strain structure
+
+  	\return result 0 or ERROR
   
-  \par Exemple:
-	Initialisation(1,ttrains,3,data_trains);
-  */
-int Initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trains);
+  	\par Exemple:
+		Initialisation(1, ttrains, 3, data_trains);
+ */
+int Initialisation(int verbose, pthread_t* ttrains, int  Ntrain, strain* data_trains);
 
 int Initlines();//initialize
 
