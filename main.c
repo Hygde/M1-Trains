@@ -7,6 +7,13 @@
    \date 10/2017
 */
 
+/*
+	HOWTOLAUNCH : 
+	$cmake CMakeLists.txt
+	$make
+	$./ProGenWCMake [seed] [lockMode]
+	
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,6 +82,7 @@ void InitStructTrain(strain *trains,char trajet[3][6], int sync,int N){
 }
 
 int main(int argc, char*argv[]){
+	// DECLERATION
 	int seed = ERROR, sync = ERROR;
 
 	int res = CheckArgv(argc, argv, &seed, &sync);
@@ -83,11 +91,11 @@ int main(int argc, char*argv[]){
 	writeSeparator();
 	writeParameter(seed, sync);
 	
-	pthread_t ttrains[NB_TRAINS];//declaration
+	pthread_t ttrains[NB_TRAINS];
 	strain data_trains[NB_TRAINS];
 	char trajet[3][6] = {{'A','B','C','B','A','\0'},{'A','B','D','B','A','\0'},{'A','B','D','C','E','\0'}};
 	
-	// initialisation
+	// INITIALIZATION
 	srand(seed);
 	InitStructTrain(data_trains,trajet, sync,3);
 	Initlines();
