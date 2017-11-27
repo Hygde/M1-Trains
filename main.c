@@ -48,7 +48,7 @@ void printSyncChoiceError(){
 //checking arguments
 int CheckArgv(int argc, char*argv[], int*seed,int*sync){
 	int result = 0;
-	if(argc == 3){
+	if(argc == 3) {
 		*seed = atoi(argv[1]);
 		if((*seed < 1) || (*seed > 1000)){
 			result = ERROR;
