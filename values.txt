@@ -1,0 +1,38 @@
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+Paramètre d' exécution : seed = 1 sync = message queue
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+Paramètre d' exécution : seed = 1 sync = rwlock
+Le temps moyen des trajets est 2.189453 secondes sur 9 trajets effectué par le thread 0
+Le temps moyen des trajets est 2.357422 secondes sur 10 trajets effectué par le thread 1
+Le temps moyen des trajets est 2.398438 secondes sur 9 trajets effectué par le thread 2
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+Paramètre d' exécution : seed = 1 sync = mutex
+Le temps moyen des trajets est 2.461670 secondes sur 12 trajets effectué par le thread 0
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+Paramètre d' exécution : seed = 1 sync = rwlock
+Le temps moyen des trajets est 2.074707 secondes sur 11 trajets effectué par le thread 0
+Le temps moyen des trajets est 2.234375 secondes sur 8 trajets effectué par le thread 1
+Le temps moyen des trajets est 2.692871 secondes sur 12 trajets effectué par le thread 2
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+Paramètre d' exécution : seed = 1 sync = rwlock
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+Paramètre d' exécution : seed = 1 sync = rwlock
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+Paramètre d' exécution : seed = 1 sync = rwlock
+Le temps moyen des trajets est 1.521729 secondes sur 12 trajets effectué par le thread 0
+Le temps moyen des trajets est 1.851562 secondes sur 10 trajets effectué par le thread 1
+Le temps moyen des trajets est 2.340576 secondes sur 13 trajets effectué par le thread 2

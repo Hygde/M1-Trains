@@ -1,7 +1,7 @@
 /**
    \file main.c
-   \brief Asynchronous C projet simulating a rail traffic 
-   \author Samuel DE VALS, Paul VIALART 
+   \brief Asynchronous C projet simulating a rail traffic
+   \author Samuel DE VALS, Paul VIALART
 
    \author Email  : samuel.devals@outook.fr, paulvialart@gmail.fr
    \date 10/2017
@@ -18,7 +18,7 @@
 #include "trains/train.h"
 
 /** \def DEBUG
-     Good practice : use this to debug the program 
+     Good practice : use this to debug the program
 */
 #define DEBUG if (1) printf
 
@@ -58,7 +58,7 @@ int CheckArgv(int argc, char*argv[], int*seed,int*sync){
 		printSyncChoiceError();
 		result = ERROR;
 	}
-	
+
 	return result;
 }
 
@@ -79,30 +79,29 @@ int main(int argc, char*argv[]){
 
 	int res = CheckArgv(argc, argv, &seed, &sync);
 	if(res == ERROR)exit(ERROR);
-	
+
 	writeSeparator();
 	writeParameter(seed, sync);
-	
+
 	pthread_t ttrains[NB_TRAINS];//declaration
 	strain data_trains[NB_TRAINS];
 	char trajet[3][6] = {{'A','B','C','B','A','\0'},{'A','B','D','B','A','\0'},{'A','B','D','C','E','\0'}};
-	
+
 	// initialisation
 	srand(seed);
 	InitStructTrain(data_trains,trajet, sync,3);
 	Initlines();
 	Initialisation(1,ttrains,3,data_trains);
-	
+
 	sleep(RUNTIME);//attente
-	
+
 	for(int i =0; i < NB_TRAINS; i++){//end of prog
 		while(pthread_cancel(ttrains[i]) != 0);
 		pthread_join(ttrains[i],NULL);
 		writeResult(data_trains[i].number, data_trains[i].Ntrajet, data_trains[i].avg_travel_time);
 	}
-		
+
 	FreeLines(SIGINT);//free mem
 
 	return 0;
 }
-

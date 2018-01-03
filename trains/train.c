@@ -1,11 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <unistd.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <mqueue.h>
 #include "train.h"
+
+// #define QUEUE_NAME  "/test_queue"
+#define MAX_SIZE    1024
+#define MSG_STOP    "exit"
 
 // DEBUG("%s %s %d\n", __FILE__, __func__, __LINE__);
 
 
 int Initialisation(int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains){
 	int result = 0;
-	// initialisation	
+	// initialisation
 	if(verbose)printf("Initialisation des threads `trains` :\n");
 	pthread_attr_t attr;
 	// creating thread attributes
@@ -45,7 +56,7 @@ int Initlines(){
 			matrix_lines[i][j].nombre_train = 0;
 			matrix_lines[i][j].timestamp = 0;
 			matrix_lines[i][j].travel_time = 0;
-			
+
 			//todo : add a selection of sync system, optimize memory use
 			pthread_mutex_init(&matrix_lines[i][j].mutex_line, NULL);
 			sem_init(&matrix_lines[i][j].sem_line,0,1);
@@ -63,11 +74,11 @@ int travelTime(strain* train, int i, int j){
 		if(result > 3) result = 3;
 	}
 	matrix_lines[i][j].travel_time = time(0)+result;//updating flag
-	
+
 	train->Ntrajet++;
 	train->avg_travel_time += (double) result;
 	train->avg_travel_time /= 2.0;
-	
+
 	return result;
 }
 
@@ -108,9 +119,9 @@ void GetLineRwlock(int i, int j){
 	pthread_rwlock_wrlock(&matrix_lines[i][j].rwlock_line);
 	matrix_lines[i][j].nombre_train++;
 	if(matrix_lines[i][j].nombre_train == 1)pthread_rwlock_wrlock(&matrix_lines[j][i].rwlock_line);
-	
-	//pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented with message "Operation not allowed" -> only 1 thread	
-	pthread_rwlock_unlock(&rwlock_fifo);	
+
+	//pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line); /!\ core dumbed if un commented with message "Operation not allowed" -> only 1 thread
+	pthread_rwlock_unlock(&rwlock_fifo);
 }
 
 //select the good sync system
@@ -194,7 +205,18 @@ int CvtCharToI(char carac){
 
 //thread execution
 void* Move(void*data_train){
-	
+
+	// mqueue init
+	mqd_t mq;
+	struct mq_attr attr;
+	char message[MAX_SIZE+1];
+
+	attr.mq_flags = 0;
+	attr.mq_maxmsg = 10;
+	attr.mq_msgsize = MAX_SIZE;
+	attr.mq_curmsgs = 0;
+
+
 	// initialisation
 	int N = strlen(((strain*)data_train)->trajet), x = ERROR, y = ERROR;
 	printf("Train %d a pour trajet: %s de %d etapes\n",((strain*)data_train)->number,((strain*)data_train)->trajet,N);
@@ -203,7 +225,6 @@ void* Move(void*data_train){
 	pthread_barrier_wait(&barrier);
 	// looping throug the path
 	while(1){
-	
 		for(int i = 0; i < N; i++){
 			if(((strain*)data_train)->trajet[i] != ((strain*)data_train)->trajet[(i+1)%N]){
 				printf("Le train %d s`engage sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
@@ -213,8 +234,32 @@ void* Move(void*data_train){
 				sleep(travelTime((strain*)data_train,x,y));
 				SignalUnusedLine(((strain*)data_train)->sync,x,y);
 				printf("Le train %d a atteint sa destination sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
+
+				char c = ((strain*)data_train)->trajet[(i+1)%N];
+				if (c == 'A') {
+					mq = mq_open("/station_a", O_CREAT | O_WRONLY, 0644, &attr);
+				}
+				else if (c == 'B') {
+					mq = mq_open("/station_b", O_CREAT | O_WRONLY, 0644, &attr);
+				}
+				else if (c == 'C') {
+					mq = mq_open("/station_c", O_CREAT | O_WRONLY, 0644, &attr);
+				}
+				else if (c == 'D') {
+					mq = mq_open("/station_d", O_CREAT | O_WRONLY, 0644, &attr);
+				}
+				else if (c == 'E') {
+					mq = mq_open("/station_e", O_CREAT | O_WRONLY, 0644, &attr);
+				}
+
+				assert((mqd_t)-1 != mq);
+				snprintf(message, sizeof(message), "Le train %d en provenance de %c entre en gare %c",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N]);
+				assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
+				assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
 			}
 		}
 	}
+	/* cleanup */
+	assert(mq_close(mq) != (mqd_t)-1);
 	return (NULL);
 }

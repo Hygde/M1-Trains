@@ -12,7 +12,7 @@ int writeSeparator(){
 			fprintf(file,"------------------------------------------------------------------\n");
 		fclose(file);
 	}
-	return 0;	
+	return 0;
 }
 
 int writeParameter(int seed, int sync){
