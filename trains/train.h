@@ -23,10 +23,14 @@
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
+#include <fcntl.h>
+#include <mqueue.h>
 
 #define ERROR -1
 #define NB_LINES 5
 #define RUNTIME  30//20*60 //20 minutes per execution
+#define QUEUE_NAME "PTR_FIFO_Q"
+#define QUEUE_FIFO_MAX_MSG_LENGHT 1
 
 //index for matrix
 #define A 0
@@ -42,6 +46,7 @@ extern "C" {
 pthread_mutex_t mutex_fifo;
 sem_t sem_fifo;
 pthread_rwlock_t rwlock_fifo;
+mqd_t mqd_fifo;
 pthread_barrier_t barrier;
 
 //representation of lines
@@ -98,11 +103,13 @@ void GetLine(int sync, int x, int y);//call the good sync
 void GetLineMutex(int i, int j);//lock a line with mutex
 void GetLineSemaphore(int i, int j);//lock a line with semaphore
 void GetLineRwlock(int i, int j);//lock a line with rwlock
+void GetLineMq();
 
 void SignalUnusedLine(int sync, int x, int y);//call the good sync
 void SignalUnusedLineMutex(int i, int j);//signal to others threads they can use it with mutex
 void SignalUnusedLineSemaphore(int i, int j);//signal to others threads they can use it with semaphore
 void SignalUnusedLineRwlock(int i, int j);//signal to others threads they can use it with rwlock
+void SignalUnusedLineMq();
 
 void FreeLines(int sig);//free memory
 
