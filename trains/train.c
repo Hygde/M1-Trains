@@ -49,6 +49,7 @@ int Initlines(){
 	pthread_mutex_init(&mutex_fifo, NULL);
 	sem_init(&sem_fifo,0,1);
 	pthread_rwlock_init(&rwlock_fifo,NULL);
+	//mqd_fifo = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, 0755, NULL);
 	pthread_barrier_init(&barrier,NULL, 3);
 	for(int i = 0; i < NB_LINES; i++){
 		for(int j = 0; j < NB_LINES; j++){
@@ -88,7 +89,7 @@ void GetLine(int sync, int x, int y){
 		case 0:GetLineMutex(x,y);break;
 		case 1:GetLineSemaphore(x,y);break;
 		case 2:GetLineRwlock(x,y);break;
-		case 3:break;
+		case 3:GetLineMq();break;
 		default:break;
 	}
 }
@@ -124,13 +125,18 @@ void GetLineRwlock(int i, int j){
 	pthread_rwlock_unlock(&rwlock_fifo);
 }
 
+//unlock line by writting a message in mqd_fifo
+void GetLineMq(){
+	mq_send(mqd_fifo,"X", QUEUE_FIFO_MAX_MSG_LENGHT, 0);
+}
+
 //select the good sync system
 void SignalUnusedLine(int sync, int x, int y){
 	switch(sync){
 		case 0:SignalUnusedLineMutex(x,y);break;
 		case 1:SignalUnusedLineSemaphore(x,y);break;
 		case 2:SignalUnusedLineRwlock(x,y);break;
-		case 3:break;
+		case 3:SignalUnusedLineMq();break;
 		default:break;
 	}
 }
@@ -159,12 +165,19 @@ void SignalUnusedLineRwlock(int i, int j){
 	pthread_rwlock_unlock(&matrix_lines[i][j].rwlock_line);
 }
 
+//unlock line by reading a message in mqd_fifo
+void SignalUnusedLineMq(){
+	char buffer[1], bytes_read = mq_receive(mqd_fifo, buffer, QUEUE_FIFO_MAX_MSG_LENGHT, NULL);
+}
+
 //Free memory when ^C
 void FreeLines(int sig){
 	if(sig == SIGINT){
 		printf("\nFreeLines\n");
 		pthread_mutex_destroy(&mutex_fifo);
 		sem_destroy(&sem_fifo);
+		pthread_rwlock_destroy(&rwlock_fifo);
+		mq_close(mqd_fifo);
 		pthread_barrier_destroy(&barrier);
 		for(int i = 0; i < NB_LINES; i++){
 			for(int j =0; j < NB_LINES; j++){
@@ -182,23 +195,12 @@ void FreeLines(int sig){
 int CvtCharToI(char carac){
 	int result;
 	switch(carac){
-		case 'A':
-			result = A;
-		break;
-		case 'B':
-			result = B;
-		break;
-		case 'C':
-			result = C;
-		break;
-		case 'D':
-			result = D;
-		break;
-		case 'E':
-			result = E;
-		break;
-		default:
-			result = ERROR;
+		case 'A':result = A;break;
+		case 'B':result = B;break;
+		case 'C':result = C;break;
+		case 'D':result = D;break;
+		case 'E':result = E;break;
+		default:result = ERROR;
 	}
 	return result;
 }
@@ -221,7 +223,10 @@ void* Move(void*data_train){
 	int N = strlen(((strain*)data_train)->trajet), x = ERROR, y = ERROR;
 	printf("Train %d a pour trajet: %s de %d etapes\n",((strain*)data_train)->number,((strain*)data_train)->trajet,N);
 	pthread_barrier_wait(&barrier);
-	if( ((strain*)data_train)->number == 0) printf("\n");
+	if( ((strain*)data_train)->number == 0){
+		sleep(1);
+		printf("\n");
+	}
 	pthread_barrier_wait(&barrier);
 	// looping throug the path
 	while(1){
