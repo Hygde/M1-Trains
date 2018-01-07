@@ -241,7 +241,6 @@ void* Move(void*data_train){
 				printf("Le train %d a atteint sa destination sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
 
 				if (((strain*)data_train)->station) {
-				printf("STATIONS\n");
 					char c = ((strain*)data_train)->trajet[(i+1)%N];
 					if (c == 'A') {
 						mq = mq_open("/station_a", O_CREAT | O_WRONLY, 0644, &attr);
@@ -264,9 +263,6 @@ void* Move(void*data_train){
 					assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
 					assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
 
-				}
-				else {
-					printf("NO STATION\n");
 				}
 			}
 		}
