@@ -15,7 +15,7 @@ int writeSeparator(){
 	return 0;
 }
 
-int writeParameter(int seed, int sync){
+int writeParameter(int seed, int sync, int station){
 	int result = 0;
 	FILE*file = fopen(FILE_NAME,"a");
 	if(file == NULL){

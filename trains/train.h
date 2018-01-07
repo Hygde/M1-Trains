@@ -77,6 +77,7 @@ typedef struct strain{
 	int Ntrajet;
 	double avg_travel_time;
 	int sync;	/**<variable use to select the good sync system*/
+	int station;
 }strain;
 
   /**

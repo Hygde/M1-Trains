@@ -240,27 +240,34 @@ void* Move(void*data_train){
 				SignalUnusedLine(((strain*)data_train)->sync,x,y);
 				printf("Le train %d a atteint sa destination sur %c %c debug : %d %d\n",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N],i,(i+1)%N);
 
-				char c = ((strain*)data_train)->trajet[(i+1)%N];
-				if (c == 'A') {
-					mq = mq_open("/station_a", O_CREAT | O_WRONLY, 0644, &attr);
-				}
-				else if (c == 'B') {
-					mq = mq_open("/station_b", O_CREAT | O_WRONLY, 0644, &attr);
-				}
-				else if (c == 'C') {
-					mq = mq_open("/station_c", O_CREAT | O_WRONLY, 0644, &attr);
-				}
-				else if (c == 'D') {
-					mq = mq_open("/station_d", O_CREAT | O_WRONLY, 0644, &attr);
-				}
-				else if (c == 'E') {
-					mq = mq_open("/station_e", O_CREAT | O_WRONLY, 0644, &attr);
-				}
+				if (((strain*)data_train)->station) {
+				printf("STATIONS\n");
+					char c = ((strain*)data_train)->trajet[(i+1)%N];
+					if (c == 'A') {
+						mq = mq_open("/station_a", O_CREAT | O_WRONLY, 0644, &attr);
+					}
+					else if (c == 'B') {
+						mq = mq_open("/station_b", O_CREAT | O_WRONLY, 0644, &attr);
+					}
+					else if (c == 'C') {
+						mq = mq_open("/station_c", O_CREAT | O_WRONLY, 0644, &attr);
+					}
+					else if (c == 'D') {
+						mq = mq_open("/station_d", O_CREAT | O_WRONLY, 0644, &attr);
+					}
+					else if (c == 'E') {
+						mq = mq_open("/station_e", O_CREAT | O_WRONLY, 0644, &attr);
+					}
 
-				assert((mqd_t)-1 != mq);
-				snprintf(message, sizeof(message), "Le train %d en provenance de %c entre en gare %c",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N]);
-				assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
-				assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
+					assert((mqd_t)-1 != mq);
+					snprintf(message, sizeof(message), "Le train %d en provenance de %c entre en gare %c",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N]);
+					assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
+					assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
+
+				}
+				else {
+					printf("NO STATION\n");
+				}
 			}
 		}
 	}

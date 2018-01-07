@@ -38,10 +38,15 @@ void printSyncChoiceError(){
 	printf("3- message queue\n");
 }
 
+void printStationChoiceError() {
+	printf("Error, statio value should be a parameter in [0;1]\n");
+}
+
+
 //checking arguments
-int CheckArgv(int argc, char*argv[], int*seed,int*sync){
+int CheckArgv(int argc, char*argv[], int*seed,int*sync, int*station){
 	int result = 0;
-	if(argc == 3){
+	if(argc == 4){
 		*seed = atoi(argv[1]);
 		if((*seed < 1) || (*seed > 1000)){
 			result = ERROR;
@@ -52,10 +57,17 @@ int CheckArgv(int argc, char*argv[], int*seed,int*sync){
 			result = ERROR;
 			printSyncChoiceError();
 		}
+		*station = atoi(argv[3]);
+		if((*station < 0) || (*station > 1)){
+			result = ERROR;
+			printStationChoiceError();
+		}
 	}
 	else{
 		printSeedChoiceError();
 		printSyncChoiceError();
+		printStationChoiceError();
+
 		result = ERROR;
 	}
 	
@@ -63,7 +75,7 @@ int CheckArgv(int argc, char*argv[], int*seed,int*sync){
 }
 
 //initialisation struct strain
-void InitStructTrain(strain *trains,char trajet[3][6], int sync,int N){
+void InitStructTrain(strain *trains,char trajet[3][6], int sync, int station,int N){
 	for(int i = 0; i < N; i++){
 		(trains+i)->number = i;
 		(trains+i)->Ntrain = NB_TRAINS;
@@ -71,17 +83,18 @@ void InitStructTrain(strain *trains,char trajet[3][6], int sync,int N){
 		(trains+i)->Ntrajet = 0;
 		(trains+i)->avg_travel_time = 0.0;
 		(trains+i)->sync = sync;
+		(trains+i)->station = station;
 	}
 }
 
 int main(int argc, char*argv[]){
-	int seed = ERROR, sync = ERROR;
+	int seed = ERROR, sync = ERROR, station = ERROR;
 
-	int res = CheckArgv(argc, argv, &seed, &sync);
+	int res = CheckArgv(argc, argv, &seed, &sync, &station);
 	if(res == ERROR)exit(ERROR);
 	
 	writeSeparator();
-	writeParameter(seed, sync);
+	writeParameter(seed, sync, station);
 	
 	pthread_t ttrains[NB_TRAINS];//declaration
 	strain data_trains[NB_TRAINS];
@@ -89,7 +102,7 @@ int main(int argc, char*argv[]){
 	
 	// initialisation
 	srand(seed);
-	InitStructTrain(data_trains,trajet, sync,3);
+	InitStructTrain(data_trains,trajet, sync, station, 3);
 	Initlines();
 	Initialisation(1,ttrains,3,data_trains);
 	

@@ -14,7 +14,7 @@
 #endif
 
 int writeSeparator();
-int writeParameter(int seed, int sync);
+int writeParameter(int seed, int sync, int station);
 int writeResult(int thread_id, int Ntrajet, double avg_travel_time);
 
 #ifdef __cplusplus
