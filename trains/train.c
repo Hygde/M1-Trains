@@ -49,7 +49,7 @@ int Initlines(){
 	pthread_mutex_init(&mutex_fifo, NULL);
 	sem_init(&sem_fifo,0,1);
 	pthread_rwlock_init(&rwlock_fifo,NULL);
-	pthread_barrier_init(&barrier,NULL, 1);
+	pthread_barrier_init(&barrier,NULL, 3);
 	for(int i = 0; i < NB_LINES; i++){
 		for(int j = 0; j < NB_LINES; j++){
 			//do this job in all cases
@@ -71,7 +71,7 @@ int travelTime(strain* train, int i, int j){
 	int result = (rand()%3+1);//travel time E [1;3]
 	if(matrix_lines[i][j].travel_time - time(0) > 0){//an other trains is on the line
 		result += matrix_lines[i][j].travel_time - time(0);
-		if(result > 3) result = 3;
+		//if(result > 3) result = 3;
 	}
 	matrix_lines[i][j].travel_time = time(0)+result;//updating flag
 
