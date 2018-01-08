@@ -81,7 +81,7 @@ typedef struct strain{
 }strain;
 
   /**
-  \fn   int Initialisation (int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains);
+  \fn   int initialisation (int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains);
   \brief Init nTrains trains
 
   \param[in] int displaying debug messages
@@ -92,11 +92,11 @@ typedef struct strain{
   \param[out] result 0 or ERROR
   
   \par Exemple:
-	Initialisation(1,ttrains,3,data_trains);
+	initialisation(1,ttrains,3,data_trains);
   */
-int Initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trains);
+int initialisation(int verbose,pthread_t* ttrains, int Ntrain, strain* data_trains);
 
-int Initlines();//initialize
+int initLines();//initialize
 
 int travelTime(strain* train, int x, int y);//calcul the time of travels, trains can't overtakes an other
 
@@ -112,7 +112,7 @@ void SignalUnusedLineSemaphore(int i, int j);//signal to others threads they can
 void SignalUnusedLineRwlock(int i, int j);//signal to others threads they can use it with rwlock
 void SignalUnusedLineMq();
 
-void FreeLines(int sig);//free memory
+void freeLines(int sig);//free memory
 
 int CvtCharToI(char carac);//convert ascii character to int
 

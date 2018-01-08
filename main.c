@@ -1,7 +1,7 @@
 /**
    \file main.c
-   \brief Asynchronous C projet simulating a rail traffic 
-   \author Samuel DE VALS, Paul VIALART 
+   \brief Asynchronous C projet simulating a rail traffic
+   \author Samuel DE VALS, Paul VIALART
 
    \author Email  : samuel.devals@outook.fr, paulvialart@gmail.fr
    \date 10/2017
@@ -18,7 +18,7 @@
 #include "trains/train.h"
 
 /** \def DEBUG
-     Good practice : use this to debug the program 
+     Good practice : use this to debug the program
 */
 #define DEBUG if (1) printf
 
@@ -39,12 +39,12 @@ void printSyncChoiceError(){
 }
 
 void printStationChoiceError() {
-	printf("Error, statio value should be a parameter in [0;1]\n");
+	printf("Error, station value should be a parameter in [0;1]\n");
 }
 
 
 //checking arguments
-int CheckArgv(int argc, char*argv[], int*seed,int*sync, int*station){
+int checkArgv(int argc, char*argv[], int*seed,int*sync, int*station){
 	int result = 0;
 	if(argc == 4){
 		*seed = atoi(argv[1]);
@@ -70,12 +70,12 @@ int CheckArgv(int argc, char*argv[], int*seed,int*sync, int*station){
 
 		result = ERROR;
 	}
-	
+
 	return result;
 }
 
 //initialisation struct strain
-void InitStructTrain(strain *trains,char trajet[3][6], int sync, int station,int N){
+void initStructTrain(strain *trains,char trajet[3][6], int sync, int station,int N){
 	for(int i = 0; i < N; i++){
 		(trains+i)->number = i;
 		(trains+i)->Ntrain = NB_TRAINS;
@@ -90,32 +90,31 @@ void InitStructTrain(strain *trains,char trajet[3][6], int sync, int station,int
 int main(int argc, char*argv[]){
 	int seed = ERROR, sync = ERROR, station = ERROR;
 
-	int res = CheckArgv(argc, argv, &seed, &sync, &station);
+	int res = checkArgv(argc, argv, &seed, &sync, &station);
 	if(res == ERROR)exit(ERROR);
-	
+
 	writeSeparator();
 	writeParameter(seed, sync, station);
-	
+
 	pthread_t ttrains[NB_TRAINS];//declaration
 	strain data_trains[NB_TRAINS];
 	char trajet[3][6] = {{'A','B','C','B','A','\0'},{'A','B','D','B','A','\0'},{'A','B','D','C','E','\0'}};
-	
+
 	// initialisation
 	srand(seed);
-	InitStructTrain(data_trains,trajet, sync, station, 3);
-	Initlines();
-	Initialisation(1,ttrains,3,data_trains);
-	
+	initStructTrain(data_trains,trajet, sync, station, 3);
+	initLines();
+	initialisation(1,ttrains,3,data_trains);
+
 	sleep(RUNTIME);//attente
-	
+
 	for(int i =0; i < NB_TRAINS; i++){//end of prog
 		while(pthread_cancel(ttrains[i]) != 0);
 		pthread_join(ttrains[i],NULL);
 		writeResult(data_trains[i].number, data_trains[i].Ntrajet, data_trains[i].avg_travel_time);
 	}
-		
-	FreeLines(SIGINT);//free mem
+
+	freeLines(SIGINT);//free mem
 
 	return 0;
 }
-

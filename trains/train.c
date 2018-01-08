@@ -14,10 +14,10 @@
 // DEBUG("%s %s %d\n", __FILE__, __func__, __LINE__);
 
 
-int Initialisation(int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains){
+int initialisation(int verbose, pthread_t* ttrains, int Ntrain, strain* data_trains){
 	int result = 0;
 	// initialisation
-	if(verbose)printf("Initialisation des threads `trains` :\n");
+	if(verbose)printf("initialisation des threads `trains` :\n");
 	pthread_attr_t attr;
 	// creating thread attributes
 	if(pthread_attr_init(&attr) != 0){
@@ -44,8 +44,8 @@ int Initialisation(int verbose, pthread_t* ttrains, int Ntrain, strain* data_tra
 }
 
 //Initialize all pthread_cond
-int Initlines(){
-	if(signal(SIGINT, FreeLines) == SIG_ERR) printf("\nImpossible d avoir le signal ctrl C");
+int initLines(){
+	if(signal(SIGINT, freeLines) == SIG_ERR) printf("\nImpossible d avoir le signal ctrl C");
 	pthread_mutex_init(&mutex_fifo, NULL);
 	sem_init(&sem_fifo,0,1);
 	pthread_rwlock_init(&rwlock_fifo,NULL);
@@ -171,9 +171,9 @@ void SignalUnusedLineMq(){
 }
 
 //Free memory when ^C
-void FreeLines(int sig){
+void freeLines(int sig){
 	if(sig == SIGINT){
-		printf("\nFreeLines\n");
+		printf("\nfreeLines\n");
 		pthread_mutex_destroy(&mutex_fifo);
 		sem_destroy(&sem_fifo);
 		pthread_rwlock_destroy(&rwlock_fifo);
@@ -261,7 +261,7 @@ void* Move(void*data_train){
 					assert((mqd_t)-1 != mq);
 					snprintf(message, sizeof(message), "Le train %d en provenance de %c entre en gare %c",((strain*)data_train)->number,((strain*)data_train)->trajet[i],((strain*)data_train)->trajet[(i+1)%N]);
 					assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
-					assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
+					// assert(0 <= mq_send(mq, message, MAX_SIZE, 0));
 
 				}
 			}
